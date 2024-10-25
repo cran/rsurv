@@ -16,14 +16,14 @@ lp(formula, coefs, data, ...)
 \item{...}{further arguments passed to other methods.}
 }
 \value{
-a vector containing the linear predictors
+a vector containing the linear predictors.
 }
 \description{
 Function to construct linear predictors.
 }
 \examples{
-\donttest{
 library(rsurv)
+library(dplyr)
 
 n <- 100
 coefs <- c(1, 0.7, 2.3)
@@ -36,6 +36,5 @@ simdata <- data.frame(
     lp = lp(~age+sex, coefs)
   )
 glimpse(simdata)
-}
 
 }

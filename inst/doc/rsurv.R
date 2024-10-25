@@ -6,6 +6,7 @@ knitr::opts_chunk$set(
 
 ## ----example, message = FALSE-------------------------------------------------
 library(rsurv)
+library(dplyr)
 library(survstan)
 library(flexsurv)
 

@@ -60,7 +60,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -352,44 +352,45 @@ by using the function <code>raftreg()</code> along with the function
 <code>qllogis()</code> available in the package
 <strong>flexsurv</strong>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(rsurv)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(survstan)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(flexsurv)</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234567890</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>n <span class="ot">&lt;-</span>  <span class="dv">1000</span></span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="dv">10</span>  <span class="co"># maximum follow up time</span></span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>simdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">age =</span> <span class="fu">rnorm</span>(n),</span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="at">sex =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">&quot;f&quot;</span>, <span class="st">&quot;m&quot;</span>), <span class="at">size =</span> n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>    <span class="at">t =</span> <span class="fu">raftreg</span>(<span class="fu">runif</span>(n), <span class="sc">~</span> age<span class="sc">*</span>sex, <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="fl">0.5</span>), </span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>                <span class="at">dist =</span> <span class="st">&quot;llogis&quot;</span>, <span class="at">shape =</span> <span class="fl">1.5</span>, <span class="at">scale =</span> <span class="dv">1</span>),</span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>    <span class="at">time =</span> <span class="fu">min</span>(t, tau),</span>
-<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>    <span class="at">status =</span> <span class="fu">as.numeric</span>(time <span class="sc">==</span> t)</span>
-<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  ) </span>
-<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="fu">glimpse</span>(simdata)</span>
-<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">#&gt; Rows: 1,000</span></span>
-<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; Columns: 5</span></span>
-<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; Rowwise: </span></span>
-<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; $ age    &lt;dbl&gt; 1.34592454, 0.99527131, 0.54622688, -1.91272392, 1.92128431, 1.…</span></span>
-<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; $ sex    &lt;chr&gt; &quot;m&quot;, &quot;f&quot;, &quot;f&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;f&quot;, &quot;f&quot;, &quot;m&quot;, &quot;f&quot;, &quot;m&quot;, &quot;m&quot;…</span></span>
-<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt; $ t      &lt;dbl&gt; 15.2363453, 1.5259533, 2.1783746, 2.4354995, 58.7932958, 16.714…</span></span>
-<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt; $ time   &lt;dbl&gt; 10.0000000, 1.5259533, 2.1783746, 2.4354995, 10.0000000, 10.000…</span></span>
-<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt; $ status &lt;dbl&gt; 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, …</span></span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">aftreg</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">Surv</span>(time, status) <span class="sc">~</span> age<span class="sc">*</span>sex,</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">data =</span> simdata, <span class="at">dist =</span> <span class="st">&quot;loglogistic&quot;</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>)</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">estimates</span>(fit)</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;        age       sexm   age:sexm      alpha      gamma </span></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;  0.9494630  2.0094422 -0.4812641  1.4946497  1.0226847</span></span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(survstan)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(flexsurv)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234567890</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>n <span class="ot">&lt;-</span>  <span class="dv">1000</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>tau <span class="ot">&lt;-</span> <span class="dv">10</span>  <span class="co"># maximum follow up time</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>simdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="at">age =</span> <span class="fu">rnorm</span>(n),</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">sex =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">&quot;f&quot;</span>, <span class="st">&quot;m&quot;</span>), <span class="at">size =</span> n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>    <span class="at">t =</span> <span class="fu">raftreg</span>(<span class="fu">runif</span>(n), <span class="sc">~</span> age<span class="sc">*</span>sex, <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="fl">0.5</span>), </span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>                <span class="at">dist =</span> <span class="st">&quot;llogis&quot;</span>, <span class="at">shape =</span> <span class="fl">1.5</span>, <span class="at">scale =</span> <span class="dv">1</span>),</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>    <span class="at">time =</span> <span class="fu">min</span>(t, tau),</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>    <span class="at">status =</span> <span class="fu">as.numeric</span>(time <span class="sc">==</span> t)</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>  ) </span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="fu">glimpse</span>(simdata)</span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">#&gt; Rows: 1,000</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a><span class="co">#&gt; Columns: 5</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a><span class="co">#&gt; Rowwise: </span></span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a><span class="co">#&gt; $ age    &lt;dbl&gt; 1.34592454, 0.99527131, 0.54622688, -1.91272392, 1.92128431, 1.…</span></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="co">#&gt; $ sex    &lt;chr&gt; &quot;m&quot;, &quot;f&quot;, &quot;f&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;m&quot;, &quot;f&quot;, &quot;f&quot;, &quot;m&quot;, &quot;f&quot;, &quot;m&quot;, &quot;m&quot;…</span></span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a><span class="co">#&gt; $ t      &lt;dbl&gt; 15.2363453, 1.5259533, 2.1783746, 2.4354995, 58.7932958, 16.714…</span></span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a><span class="co">#&gt; $ time   &lt;dbl&gt; 10.0000000, 1.5259533, 2.1783746, 2.4354995, 10.0000000, 10.000…</span></span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a><span class="co">#&gt; $ status &lt;dbl&gt; 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, …</span></span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">aftreg</span>(</span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a>  <span class="fu">Surv</span>(time, status) <span class="sc">~</span> age<span class="sc">*</span>sex,</span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a>  <span class="at">data =</span> simdata, <span class="at">dist =</span> <span class="st">&quot;loglogistic&quot;</span></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a>)</span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a><span class="fu">estimates</span>(fit)</span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a><span class="co">#&gt;        age       sexm   age:sexm      alpha      gamma </span></span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a><span class="co">#&gt;  0.9494630  2.0094422 -0.4812641  1.4946497  1.0226847</span></span></code></pre></div>
 </div>
 
 
